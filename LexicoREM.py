@@ -2,7 +2,7 @@ import ply.lex as lex
 import ply.yacc as yacc
 #import sys
 
-codigoPrueba = open('MATRIXX.txt','r')
+codigoPrueba = open('TEST.txt','r')
 
 #Con los tokens defino cada palabra de mi lenguaje
 tokens = [
