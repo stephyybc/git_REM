@@ -1,0 +1,18 @@
+//Stephanie Denisse Benítez Cabrera
+//A00820320
+//Segundo programa, aritmética anidada
+
+int main() {
+
+	x: int = 14;
+	y: int: 16;
+	z: int = 18;
+
+	if ( x == y ){
+		print ("variables iguales");
+		if ( y == z){
+			print("Todas son iguales");
+			e els{
+				print( "Son diferentes" %s)
+		}?
+	}
