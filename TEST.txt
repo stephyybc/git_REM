@@ -1,15 +1,4 @@
-int main {
-	matrizA[2][2]
-	INT matrizB[2][2];
-	INT resultados[2][2];
-	FOR (INT i = 0; i >= matrizA) { 
-		FOR(INT y = 0; y >= matrizB){
-			IF ( 'x' && 'y' != 0){
-				resultados = matrizA + matriz;
+link starto(): 
 
-			}
-		}
-	}
-}
-			
+link end		
 	
