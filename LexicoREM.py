@@ -55,7 +55,9 @@ reserved = [
     'VECTOR',
     'MATRIX',
     'STARTO', #Palabra que inicia funcion principal
-    'END' #Palabra que termina funcion
+    'END', #Palabra que termina funcion
+    'THEN' 
+
 ]
 
 #Para unir tokens y values
@@ -144,6 +146,16 @@ def t_END(t):
     t.type = "END"
     return t
 
+def t_THEN(t): 
+    r'THEN'
+    t.type = "THEN"
+    return t
+
+#Palabra donde se almacenan los numeros del rango del for
+def t_RANGO(t):
+    r'\d+' #recibe numero decimales
+    t.rango = int(t.rango) #accede al value y lo convierte a entero
+    return t
 
 def t_ID(t):
     r'[a-zA-Z][a-zA-Z_0-9]*'
@@ -152,15 +164,6 @@ def t_ID(t):
         t.type = t.value.upper()
     else:
             t.type = 'ID'
-    return t
-
-def t_NOMBRE(t):
-    r'[a-zA-Z][a-zA-Z_0-9]*'
-    if t.value.upper() in reserved: #revisar que está en el arreglo
-        t.value = t.value.upper()
-        t.type = t.value.upper()
-    else:
-            t.type = 'NOMBRE'
     return t
 
 def t_error(t):
@@ -185,7 +188,6 @@ precedence = (
     ('left','AND','OR'),
     ('left', 'PLUS', 'MINUS'),
     ('left', 'MULTIPLY', 'DIVIDE'),
-    #('right', 'UMINUS'),            # Unary minus operator
 )
 
 #ahora analizamos las funciones
@@ -196,18 +198,54 @@ def p_main(p):
     main : ID STARTO PARLEFT PARRIGHT DOTS body ID END
     '''
 
+#Funciones declaradas dentro del main
+def p_function(p):
+    '''
+    createFunc : type ID STARTO PARLEFT PARRIGHT DOTS body ID END
+    '''
 #vamos a declarar body
 #jerarquia a la izquierda
 def p_body(p):
     '''
-    body : body create_var 
+    body : body createVar 
+         | body createArr
+         | body createFunc
+         | body createStats
          | empty
     '''
+#Creacion de variables
 def p_createVar(p):
     '''
-    create_var : ID DOTS type DOTSEQ value ENDING
+    createVar : ID DOTS type DOTSEQ value ENDING
+    '''
+#Creacion de arreglos
+def p_createArr(p):
+    '''
+    createArr : type DOTS ID RECLEFT value RECRIGHT RECLEFT value RECRIGHT ENDING
+    '''
+#Declaracion de estatutos
+def p_createStats(p):
+    '''
+    createStats : ID DOTS type DOTSEQ value ENDING
+    '''
+def p_if(p):
+    '''
+    estatuto_if: IF condicion THEN DOTS body IF_NOT THEN DOTS body END IF ENDING
+    '''
+def p_if_not(p):
+    '''
+    estatuto_if: IF_NOT THEN DOTS body END
+    '''
+def p__for(p):
+    '''
+    estatuto_for: FOR PARLEFT ID PARRIGHT IN rango LOOP DOTS body END
+    '''
+def p_do_while(p):
+    '''
+    estatuto_while: WHILE PARLEFT condicion PARRIGHT BRACLEFT body BRACKRIGHT
     '''
 
+#Definicion 
 def p_type(p):
     '''
     type : INT 
