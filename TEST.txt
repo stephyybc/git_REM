@@ -1,4 +1,21 @@
-link starto(): 
 
-link end		
-	
+boom starto:
+	y : INT := 5;
+	boom END
+
+link starto(): 
+	x : INT := 3;
+	y : INT := 4;
+	INT : SOS [2][2];
+	SOS [2][2] := 5;
+	IF x > y THEN :
+		PRINT( " FUNCIONA " );
+	END IF;
+	FOR x IN 1,10 LOOP :
+		PRINT (x);
+	END LOOP;
+	WHILE x < y :
+		PRINT (x);
+		PRINT (y);
+	END WHILE;
+link end
