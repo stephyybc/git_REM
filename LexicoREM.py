@@ -56,7 +56,11 @@ reserved = [
     'MATRIX',
     'STARTO', #Palabra que inicia funcion principal
     'END', #Palabra que termina funcion
-    'THEN' 
+    'THEN',
+    'LOOP', #Palabra con la que inicia un ciclo
+    'IN', #Simbolo para el loop
+    'CALL' #para lamada de funciones
+
 
 ]
 
@@ -151,6 +155,21 @@ def t_THEN(t):
     t.type = "THEN"
     return t
 
+def t_LOOP(t): 
+    r'LOOP'
+    t.type = "LOOP"
+    return t
+
+def t_IN(t): 
+    r'IN'
+    t.type = "IN"
+    return t
+    
+def t_CALL(t): 
+    r'CALL'
+    t.type = "CALL"
+    return t
+
 #Palabra donde se almacenan los numeros del rango del for
 def t_RANGO(t):
     r'\d+' #recibe numero decimales
@@ -193,6 +212,13 @@ precedence = (
 #ahora analizamos las funciones
 
 #Primero la funcion principal, estructura del programa
+def p_principal(p):
+    '''
+    principal : principal main 
+              | principal createFunc
+              | empty
+    '''
+
 def p_main(p):
     '''
     main : ID STARTO PARLEFT PARRIGHT DOTS body ID END
@@ -201,7 +227,11 @@ def p_main(p):
 #Funciones declaradas dentro del main
 def p_function(p):
     '''
-    createFunc : type ID STARTO PARLEFT PARRIGHT DOTS body ID END
+    createFunc : ID STARTO DOTS body ID END
+    '''
+def p_call(p):
+    '''
+    call : CALL ID ENDING 
     '''
 #vamos a declarar body
 #jerarquia a la izquierda
@@ -209,8 +239,12 @@ def p_body(p):
     '''
     body : body createVar 
          | body createArr
-         | body createFunc
-         | body createStats
+         | body call
+         | body updateVar
+         | body estatuto_if
+         | body estatuto_for
+         | body estatuto_do_while
+         | body updateArr
          | empty
     '''
 #Creacion de variables
@@ -221,28 +255,37 @@ def p_createVar(p):
 #Creacion de arreglos
 def p_createArr(p):
     '''
-    createArr : type DOTS ID RECLEFT value RECRIGHT RECLEFT value RECRIGHT ENDING
+    createArr : type DOTS ID dimension ENDING
+    '''
+#Funciona para actualizar el valor de las variables
+def p_upddateVar(p):
+    '''
+    updateVar : ID DOTSEQ value ENDING
+    '''
+#Actualizar arreglos
+def p_updateArr(p):
+    '''
+    updateArr : ID dimension DOTSEQ value ENDING         
+    '''
+#Se define si el arreglo es de una dimension o de dos
+def p_dimension(p):
+    '''
+    dimension : RECLEFT value RECRIGHT 
+              | RECLEFT value RECRIGHT RECLEFT value RECRIGHT 
     '''
 #Declaracion de estatutos
-def p_createStats(p):
-    '''
-    createStats : ID DOTS type DOTSEQ value ENDING
-    '''
 def p_if(p):
     '''
-    estatuto_if: IF condicion THEN DOTS body IF_NOT THEN DOTS body END IF ENDING
+    estatuto_if : IF condicion THEN DOTS body IF_NOT THEN DOTS body END ENDING
     '''
-def p_if_not(p):
-    '''
-    estatuto_if: IF_NOT THEN DOTS body END
-    '''
+#for tiene el limite superior y el limite inferior 
 def p__for(p):
     '''
-    estatuto_for: FOR PARLEFT ID PARRIGHT IN rango LOOP DOTS body END
+    estatuto_for : FOR ID IN forValues COMMA forValues LOOP DOTS body END ENDING
     '''
 def p_do_while(p):
     '''
-    estatuto_while: WHILE PARLEFT condicion PARRIGHT BRACLEFT body BRACKRIGHT
+    estatuto_do_while : DO_WHILE PARLEFT condicion PARRIGHT DOTS body END ENDING
     '''
 
 #Definicion 
@@ -252,14 +295,33 @@ def p_type(p):
          | FLOAT
          | STRING     
     '''
-
 def p_value(p):
     '''
     value : INT_VALUE 
           | FLOAT_VALUE
           | STRING_VALUE 
     '''
-
+#Un for acepta como valores valores enteros y un ID
+def p_forValues(p):
+    '''
+    forValues : INT_VALUE
+              | ID
+    '''
+def p_condicion(p):
+    '''
+    condicion : condicion GTTHAN condicion
+              | condicion LESSTHAN condicion
+              | condicion GTEQ condicion
+              | condicion LOEQ condicion 
+              | condicion NOTEQUAL condicion
+              | packu  
+    '''
+def p_packu(p):
+    '''
+    packu : INT_VALUE
+          | FLOAT_VALUE
+          | ID
+    '''
 def p_empty(p):
     'empty : '
     pass
