@@ -49,7 +49,7 @@ reserved = [
     'PRINT',
     'IF',
     'IF_NOT',
-    'DO_WHILE',
+    'WHILE',
     'FOR',
     'BREAK',
     'VECTOR',
@@ -59,7 +59,7 @@ reserved = [
     'THEN',
     'LOOP', #Palabra con la que inicia un ciclo
     'IN', #Simbolo para el loop
-    'CALL' #para lamada de funciones
+    'CALL'#para lamada de funciones
 
 
 ]
@@ -243,7 +243,9 @@ def p_body(p):
          | body updateVar
          | body estatuto_if
          | body estatuto_for
-         | body estatuto_do_while
+         | body estatuto_while
+         | body print
+         | body read
          | body updateArr
          | empty
     '''
@@ -276,18 +278,28 @@ def p_dimension(p):
 #Declaracion de estatutos
 def p_if(p):
     '''
-    estatuto_if : IF condicion THEN DOTS body IF_NOT THEN DOTS body END ENDING
+    estatuto_if : IF condicion THEN DOTS body IF_NOT THEN DOTS body END IF ENDING
+                | IF condicion THEN DOTS body END IF ENDING
     '''
 #for tiene el limite superior y el limite inferior 
 def p__for(p):
     '''
-    estatuto_for : FOR ID IN forValues COMMA forValues LOOP DOTS body END ENDING
+    estatuto_for : FOR ID IN forValues COMMA forValues LOOP DOTS body END LOOP ENDING
     '''
-def p_do_while(p):
+def p_while(p):
     '''
-    estatuto_do_while : DO_WHILE PARLEFT condicion PARRIGHT DOTS body END ENDING
+    estatuto_while : WHILE condicion DOTS body END WHILE ENDING
     '''
-
+def p_print(p): 
+    '''
+    print : PRINT PARLEFT printValues COMMA ID PARRIGHT ENDING
+          | PRINT PARLEFT printValues PARRIGHT ENDING 
+          | PRINT PARLEFT ID PARRIGHT ENDING
+    '''
+def p_read(p):
+    '''
+    read : READ DOTS PARLEFT ID PARRIGHT ENDING END
+    '''
 #Definicion 
 def p_type(p):
     '''
@@ -307,6 +319,10 @@ def p_forValues(p):
     forValues : INT_VALUE
               | ID
     '''
+def p_printValues(p):
+    '''
+    printValues : STRING_VALUE
+    '''
 def p_condicion(p):
     '''
     condicion : condicion GTTHAN condicion
@@ -314,6 +330,7 @@ def p_condicion(p):
               | condicion GTEQ condicion
               | condicion LOEQ condicion 
               | condicion NOTEQUAL condicion
+              | condicion EQUAL condicion
               | packu  
     '''
 def p_packu(p):
