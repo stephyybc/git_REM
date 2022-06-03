@@ -1,9 +1,12 @@
 import ply.lex as lex
 import ply.yacc as yacc
+import pprint
 #import sys
 
 codigoPrueba = open('TEST.txt','r')
-#LEXICO
+##################################
+###### ANALISIS DE LEXICO ########
+##################################
 #Con los tokens defino cada palabra de mi lenguaje
 tokens = [
     'INT',
@@ -197,8 +200,9 @@ while True:
     print(tokenss)
     if not tokenss: 
         break
-
-#Análsisi de sintaxis
+###################################
+##### Análsisi de sintaxis ########
+###################################
 #DIAGRAMA DE SINTAXIS
 #precedence nos ayuda a jerarquizar las operaciones con mayor prioridad
 #entre más abajo mayor prioridad
@@ -209,8 +213,7 @@ precedence = (
     ('left', 'MULTIPLY', 'DIVIDE'),
 )
 
-#ahora analizamos las funciones
-
+#Ahora analizamos las funciones
 #Primero la funcion principal, estructura del programa
 def p_principal(p):
     '''
@@ -257,7 +260,7 @@ def p_createVar(p):
 #Creacion de arreglos
 def p_createArr(p):
     '''
-    createArr : type DOTS ID dimension ENDING
+    createArr : ID DOTS type DOTS dimension ENDING
     '''
 #Funciona para actualizar el valor de las variables
 def p_upddateVar(p):
@@ -355,3 +358,5 @@ try:
 except EOFError:
     pass
 
+#Vamnos a imprimir la tabla de simbolos
+pprint.pprint(tabla_simbolos)
