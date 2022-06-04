@@ -1,6 +1,7 @@
 import ply.lex as lex
 import ply.yacc as yacc
 import pprint
+from collections import deque
 #import sys
 
 codigoPrueba = open('TEST.txt','r')
@@ -200,10 +201,184 @@ while True:
     print(tokenss)
     if not tokenss: 
         break
+
+############################
+## DECLARAMOS CUADRUPLOS ###
+############################
+PilaDeOperandos = []
+PilaDeSaltos = []
+PilaDeCuadruplos = []
+PilaDeVariables = []
+availTemporales = deque(['1','2','3','4','5','6','7','8']) #No conviene ponerlos como enteros, porque se podría confundir
+TemporalesOperandos = availTemporales.copy()
+ListaDeTemporales = [None]*9
+cont = 0
+ID = ''
+Tf_aux = [] #Necesito que esto sea una pila para que no se pierdan los temporales
+
+def expresiones(simbolo, op1, op2):
+    if op2 in TemporalesOperandos: #Para saber si algún temporal es un operando
+        availTemporales.append(op2)
+    if op1 in TemporalesOperandos:
+        availTemporales.append(op1)
+
+    res = availTemporales.popleft()
+    PilaDeOperandos.append(res)
+
+    Generar(simbolo, op1, op2, res)
+
+def Generar(simbolo, op1, op2, res):
+    global cont
+    PilaDeCuadruplos.append([simbolo, op1, op2, res])
+    cont = cont + 1
+
+def Rellenar(D):
+    global cont
+    PilaDeCuadruplos[D][2] = cont #Va acceder al cuádruplo número D a su tercer parámetro
+
+def Ejecucion():
+    PC = 0
+    global PilaDeVariables 
+    Pos = 0 #Contador Variables
+    while PC < len(PilaDeCuadruplos) :
+        Cuadruplo = PilaDeCuadruplos[PC]
+        checarVariable = False
+        existeVariable = False
+        opcode = Cuadruplo[0]
+        op1 = Cuadruplo[1]
+        op2 = Cuadruplo[2]
+        res = Cuadruplo[3]
+
+        if res in availTemporales:
+            indice = int(res)
+
+        if(not isinstance(op1, int) and not isinstance(op1, float) and op1 != "" and opcode != "write" and opcode != "input"):
+            if op1 in availTemporales:
+                indice = int(op1)
+                op1 = ListaDeTemporales[indice]
+            else:
+                for x in range(len(PilaDeVariables)): #Para buscar el elemento en la vista
+                    if op1 == PilaDeVariables[x][0]:
+                        op1 = PilaDeVariables[x][3]
+                        existeVariable = True
+                        break
+                if existeVariable == False :
+                    sys.exit("No existe la variable")
+
+        if(not isinstance(op2, int) and not isinstance(op2, float) and op2 != ""):
+            if op2 in availTemporales:
+                indice = int(op2)
+                op2 = ListaDeTemporales[indice]
+            else:
+                existeVariable = False 
+                for x in range(len(PilaDeVariables)): #Para buscar el elemento en la vista
+                    if op2 == PilaDeVariables[x][0]:
+                        op2 = PilaDeVariables[x][3]
+                        existeVariable = True
+                        break
+                if existeVariable == False :
+                    sys.exit("No existe la variable")
+            
+        if opcode == "*":
+            ListaDeTemporales[indice] = op1 * op2
+            PC = PC + 1
+        elif opcode == "/":
+            ListaDeTemporales[indice] = op1 / op2
+            PC = PC + 1
+        elif opcode == "+":
+            if res in availTemporales: 
+                ListaDeTemporales[indice] = op1 + op2
+            else: #Este aplica para cuando se suma en loe For
+                for x in range(len(PilaDeVariables)): #Para buscar el elemento en la vista
+                    if res == PilaDeVariables[x][0]:
+                        PilaDeVariables[x][3] = op1 + op2
+                        break
+            PC = PC + 1
+        elif opcode == "-":
+            ListaDeTemporales[indice] = op1 - op2
+            PC = PC + 1
+        elif opcode == ">=":
+            ListaDeTemporales[indice] = op1 >= op2
+            PC = PC + 1
+        elif opcode == "<=":
+            ListaDeTemporales[indice] = op1 <= op2
+            PC = PC + 1
+        elif opcode == ">":
+            ListaDeTemporales[indice] = op1 > op2
+            PC = PC + 1
+        elif opcode == "<":
+            ListaDeTemporales[indice] = op1 < op2
+            PC = PC + 1
+        elif opcode == "==":
+            ListaDeTemporales[indice] = op1 == op2
+            PC = PC + 1
+        elif opcode == "!=":
+            ListaDeTemporales[indice] = op1 != op2
+            PC = PC + 1
+        elif opcode == "and":
+            ListaDeTemporales[indice] = op1 and op2
+            PC = PC + 1
+        elif opcode == "or":
+            ListaDeTemporales[indice] = op1 or op2
+            PC = PC + 1
+
+        elif opcode == "=":
+            if res not in availTemporales: 
+                for x in range(len(PilaDeVariables)): #Para buscar el elemento en la vista
+                    if res == PilaDeVariables[x][0]:
+                        PilaDeVariables[x][3] = op1
+                        if isinstance(op1, int):
+                            PilaDeVariables[x][2] = "int"
+                        else:
+                            PilaDeVariables[x][2] = "float"
+                        checarVariable = True
+                        break
+                if checarVariable == False:
+                    if isinstance(op1, int):
+                            tipo = "int"
+                    else:
+                            tipo = "float"
+                    PilaDeVariables.append([res, Pos, tipo, op1])
+                    Pos = Pos + 1
+            else:
+                ListaDeTemporales[indice] = op1
+                
+            PC = PC + 1
+        elif opcode == "goto":
+            PC = op2
+        elif opcode == "gotof":
+            if (op1 == False):
+                PC = op2
+            else:
+                PC = PC + 1
+        elif opcode == "write":
+            if(isinstance(op1, str) and len(op1) > 0):
+                simbolo = '"'
+                op1 = op1.replace(simbolo, "") #Quitará las comillas dobles
+                if(op1 == "\\n"):
+                    print(op1, end = "\n")
+                else:
+                    print(op1, end = " ")
+            else:
+                print(op2, end = " ")
+            PC = PC + 1
+        elif opcode == "input":
+            for x in range(len(PilaDeVariables)): #Para buscar el elemento en la vista
+                    if res == PilaDeVariables[x][0]:
+                        PilaDeVariables[x][3] = int(input(op1))
+                        PC = PC + 1
+                        break
+                
+
 ###################################
 ##### Análsisi de sintaxis ########
 ###################################
 #DIAGRAMA DE SINTAXIS
+
+### DECLARAMOS LA TABLA DE SIMBOLOS ####
+tabla_simbolos = {}
+posicion = 0
+
 #precedence nos ayuda a jerarquizar las operaciones con mayor prioridad
 #entre más abajo mayor prioridad
 precedence = (
@@ -212,6 +387,7 @@ precedence = (
     ('left', 'PLUS', 'MINUS'),
     ('left', 'MULTIPLY', 'DIVIDE'),
 )
+
 
 #Ahora analizamos las funciones
 #Primero la funcion principal, estructura del programa
@@ -232,6 +408,14 @@ def p_function(p):
     '''
     createFunc : ID STARTO DOTS body ID END
     '''
+    global posicion
+    name = p[1]
+    tipo = "funcion"
+    tabla_simbolos[name] = {} #Arreglo
+    tabla_simbolos[name][" memory index = "] = posicion
+    tabla_simbolos[name]["type = "] = tipo
+    posicion = posicion + 1
+
 def p_call(p):
     '''
     call : CALL ID ENDING 
@@ -257,11 +441,34 @@ def p_createVar(p):
     '''
     createVar : ID DOTS type DOTSEQ value ENDING
     '''
+    name = p[1]
+    global posicion
+    if name in tabla_simbolos: 
+        print(" {name} It already exists")
+    else:
+        tipo = p[3]
+        tabla_simbolos[name] = {} #Lista
+        tabla_simbolos[name][" memory index = "] = posicion
+        tabla_simbolos[name]["type = "] = tipo
+        posicion = posicion + 1
+     
 #Creacion de arreglos
 def p_createArr(p):
     '''
     createArr : ID DOTS type DOTS dimension ENDING
+              | ID DOTS type DOTS dimension DOTSEQ RECLEFT value COMMA value RECRIGHT RECLEFT value COMMA value RECRIGHT ENDING 
     '''
+    name = p[1]
+    global posicion 
+    if name in tabla_simbolos: 
+        print("\n {name} It already exists")
+    else:
+        tipo = p[3]
+        tabla_simbolos[name] = {} #Lista
+        tabla_simbolos[name][" memory index = "] = posicion
+        tabla_simbolos[name]["type = "] = tipo
+        posicion = posicion + 1
+     
 #Funciona para actualizar el valor de las variables
 def p_upddateVar(p):
     '''
@@ -310,11 +517,21 @@ def p_type(p):
          | FLOAT
          | STRING     
     '''
+    p[0] = p[1]
 def p_value(p):
     '''
     value : INT_VALUE 
           | FLOAT_VALUE
           | STRING_VALUE 
+          | ID
+          | ID aritmeticExpression ID
+    '''
+def p_aritmeticExpression(p):
+    '''
+    aritmeticExpression : MINUS
+                        | PLUS
+                        | MULTIPLY
+                        | DIVIDE
     '''
 #Un for acepta como valores valores enteros y un ID
 def p_forValues(p):
@@ -334,6 +551,7 @@ def p_condicion(p):
               | condicion LOEQ condicion 
               | condicion NOTEQUAL condicion
               | condicion EQUAL condicion
+              | condicion AND condicion
               | packu  
     '''
 def p_packu(p):
@@ -358,3 +576,5 @@ try:
 except EOFError:
     pass
 
+#Vamnos a imprimir la tabla de simbolos
+pprint.pprint(tabla_simbolos)
