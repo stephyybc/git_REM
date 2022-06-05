@@ -1,7 +1,8 @@
 import ply.lex as lex
 import ply.yacc as yacc
 import pprint
-#import sys
+from collections import deque
+import sys
 
 codigoPrueba = open('TEST.txt','r')
 ##################################
@@ -200,6 +201,24 @@ while True:
     print(tokenss)
     if not tokenss: 
         break
+
+############################
+## DECLARAMOS CUADRUPLOS ###
+############################
+PilaDeOperandos = []
+PilaDeSaltos = []
+PilaDeCuadruplos = []
+PilaDeVariables = []
+availTemporales = deque(['1','2','3','4','5','6','7','8']) #No conviene ponerlos como enteros, porque se podría confundir
+TemporalesOperandos = availTemporales.copy()
+ListaDeTemporales = [None]*9
+cont = 0
+ID = ''
+Tf_aux = [] #Necesito que esto sea una pila para que no se pierdan los temporales
+
+
+                
+
 ###################################
 ##### Análsisi de sintaxis ########
 ###################################
@@ -286,6 +305,7 @@ def p_createVar(p):
 def p_createArr(p):
     '''
     createArr : ID DOTS type DOTS dimension ENDING
+              | ID DOTS type DOTS dimension DOTSEQ RECLEFT value COMMA value RECRIGHT RECLEFT value COMMA value RECRIGHT ENDING 
     '''
     name = p[1]
     global posicion 
@@ -352,6 +372,15 @@ def p_value(p):
     value : INT_VALUE 
           | FLOAT_VALUE
           | STRING_VALUE 
+          | ID
+          | ID aritmeticExpression ID
+    '''
+def p_aritmeticExpression(p):
+    '''
+    aritmeticExpression : MINUS
+                        | PLUS
+                        | MULTIPLY
+                        | DIVIDE
     '''
 #Un for acepta como valores valores enteros y un ID
 def p_forValues(p):
@@ -371,6 +400,7 @@ def p_condicion(p):
               | condicion LOEQ condicion 
               | condicion NOTEQUAL condicion
               | condicion EQUAL condicion
+              | condicion AND condicion
               | packu  
     '''
 def p_packu(p):
