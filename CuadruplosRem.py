@@ -1,7 +1,6 @@
 import ply.lex as lex
 import ply.yacc as yacc
 import pprint
-from collections import deque
 import sys
 
 codigoPrueba = open('PRUEBASCUADRUPLOS.txt','r')
@@ -220,7 +219,7 @@ posicion = 0
 #########################################
 
 pilas_operandos = [] #vamos a almacenar aqui 
-temporales = ['T1', 'T2','T3','T4','T5','T6','T7'] #Vamos declarando las temporales que sean necesarias
+temporales = ['T1', 'T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12',] #Vamos declarando las temporales que sean necesarias
 Lista_cuadruplos = [] #Lista donde se almacenaran los cuadruplos 
 ContaCuadruplos = 0
 
@@ -279,12 +278,14 @@ def p_body(p):
          | body print
          | body read
          | body updateArr
+         | body aritmeticExpression ENDING
          | empty
     '''
 #Creacion de variables
 def p_createVar(p):
     '''
     createVar : ID DOTS type DOTSEQ aritmeticExpression ENDING
+              | ID DOTS type ENDING
     '''
     name = p[1]
     global posicion
@@ -296,6 +297,7 @@ def p_createVar(p):
         tabla_simbolos[name][" memory index = "] = posicion
         tabla_simbolos[name]["type = "] = tipo
         posicion = posicion + 1
+        
      
 #Creacion de arreglos
 def p_createArr(p):
@@ -319,11 +321,21 @@ def p_upddateVar(p):
     '''
     updateVar : ID DOTSEQ aritmeticExpression ENDING
     '''
+    global ContaCuadruplos
+    print(pilas_operandos)
+    operando1 = pilas_operandos.pop()
+    print(pilas_operandos)
+    cuadruplo = ['=',operando1,None,p[1]]
+    print("EQUAL: ",cuadruplo)
+    Lista_cuadruplos.append(cuadruplo)
+    ContaCuadruplos = ContaCuadruplos +1
+
 #Actualizar arreglos
 def p_updateArr(p):
     '''
     updateArr : ID dimension DOTSEQ aritmeticExpression ENDING         
     '''
+    pilas_operandos.append(p[4])
 #Se define si el arreglo es de una dimension o de dos
 def p_dimension(p):
     '''
@@ -389,23 +401,76 @@ def p_GiverValues(p):
     '''
     pilas_operandos.append(p[1])
 
+def p_giverGroup(p): 
+    '''
+    Giver : PARLEFT aritmeticExpression PARRIGHT
+    '''
+    p[0] = p[2]
+
 def p_exMINUS(p):
     'aritmeticExpression : aritmeticExpression MINUS aritmeticExpression'
     global ContaCuadruplos
+    print(pilas_operandos)
     operando2 = pilas_operandos.pop()
+    print(pilas_operandos)
     operando1 = pilas_operandos.pop()
-    cuadruplo = ['-',operando1,operando2,temporales.pop()]
+    print(pilas_operandos)
+    resultado = temporales.pop()
+    pilas_operandos.append(resultado)
+    cuadruplo = ['-',operando1,operando2,resultado]
+    print("MINUS: ",cuadruplo)
     Lista_cuadruplos.append(cuadruplo)
     ContaCuadruplos = ContaCuadruplos +1
 
 def p_exMULTIPLY(p):
     'aritmeticExpression : aritmeticExpression MULTIPLY aritmeticExpression'
+    global ContaCuadruplos
+    print(pilas_operandos)
+    operando2 = pilas_operandos.pop()
+    print(pilas_operandos)
+    operando1 = pilas_operandos.pop()
+    print(pilas_operandos)
+    resultado = temporales.pop()
+    pilas_operandos.append(resultado)
+    cuadruplo = ['*',operando1,operando2,resultado]
+    print("MULTIPLY: ",cuadruplo)
+    Lista_cuadruplos.append(cuadruplo)
+    ContaCuadruplos = ContaCuadruplos +1
 
 def p_exPLUS(p):
     'aritmeticExpression : aritmeticExpression PLUS aritmeticExpression'
+    global ContaCuadruplos
+    print(pilas_operandos)
+    operando2 = pilas_operandos.pop()
+    print(pilas_operandos)
+    operando1 = pilas_operandos.pop()
+    print(pilas_operandos)
+    resultado = temporales.pop()
+    pilas_operandos.append(resultado)
+    cuadruplo = ['+',operando1,operando2,resultado]
+    print("SUMA: ",cuadruplo)
+    Lista_cuadruplos.append(cuadruplo)
+    ContaCuadruplos = ContaCuadruplos +1
 
 def p_exDIVIDE(p):
     'aritmeticExpression : aritmeticExpression DIVIDE aritmeticExpression'
+    global ContaCuadruplos
+    print(pilas_operandos)
+    operando2 = pilas_operandos.pop()
+    print(pilas_operandos)
+    operando1 = pilas_operandos.pop()
+    print(pilas_operandos)
+    resultado = temporales.pop()
+    pilas_operandos.append(resultado)
+    cuadruplo = ['/',operando1,operando2,resultado]
+    print("DIVIDE: ",cuadruplo)
+    Lista_cuadruplos.append(cuadruplo)
+    ContaCuadruplos = ContaCuadruplos +1
+
+
+##########################
+#EXPRESIONES COMPARATIVAS#
+##########################
 
 
 #Un for acepta como valores valores enteros y un ID
@@ -427,14 +492,26 @@ def p_condicion(p):
               | condicion NOTEQUAL condicion
               | condicion EQUAL condicion
               | condicion AND condicion
-              | packu  
+              | condicion 
     '''
-def p_packu(p): #Valor que posiblemente reciba
+def p_packuCondicion(p):
+    '''
+    condicion : packu
+    '''
+    p[0] = p[1]
+def p_packu(p): #Valor que posiblemente reciba en condiciones
     '''
     packu : INT_VALUE
           | FLOAT_VALUE
           | ID
     '''
+    pilas_operandos.append(p[1])
+def p_packuGroup(p): 
+    '''
+    packu : PARLEFT aritmeticExpression PARRIGHT
+    '''
+    p[0] = p[2]
+
 def p_empty(p):
     'empty : '
     pass
@@ -453,4 +530,6 @@ except EOFError:
 
 #Vamnos a imprimir la tabla de simbolos
 pprint.pprint(tabla_simbolos)
-pprint.pprint(Lista_cuadruplos)
+print ("Número de cuadruplos: ",ContaCuadruplos)
+for x in Lista_cuadruplos:
+    print(x)
