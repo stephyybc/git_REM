@@ -36,7 +36,6 @@ tokens = [
     'QUOM', #comillas 
     'STRING',
     'ID', #especificamente para funciones
-    'NOMBRE', #especificamente para variables y arreglos
     'ENDING', #semicolon
     'PLUSPLUS',
     'DOTSEQ', #dos puntos igual (asignacion de valor)
@@ -75,13 +74,13 @@ t_PLUS = r'\+'
 t_MINUS = r'\-'
 t_MULTIPLY = r'\*'
 t_DIVIDE = r'\/'
-t_EQUAL = r'\=\='
+t_SAME = r'\=\='
 t_GTEQ = r'>='
 t_LOEQ = r'<='
 t_GTTHAN = r'>'
 t_LESSTHAN = r'<'
 t_NOTEQUAL = r'!='
-t_SAME = r'\='
+t_EQUAL = r'\='
 t_AND = r'&&'
 t_OR = r'\|\|'
 t_PARLEFT = r'\('
@@ -219,7 +218,7 @@ posicion = 0
 #########################################
 
 pilas_operandos = [] #vamos a almacenar aqui 
-temporales = ['T1', 'T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12',] #Vamos declarando las temporales que sean necesarias
+temporales = ['T1', 'T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12', 'T13','T14','T15'] #Vamos declarando las temporales que sean necesarias
 Lista_cuadruplos = [] #Lista donde se almacenaran los cuadruplos 
 ContaCuadruplos = 0
 
@@ -279,6 +278,7 @@ def p_body(p):
          | body read
          | body updateArr
          | body aritmeticExpression ENDING
+         | body condicion ENDING
          | empty
     '''
 #Creacion de variables
@@ -472,6 +472,161 @@ def p_exDIVIDE(p):
 #EXPRESIONES COMPARATIVAS#
 ##########################
 
+def p_exGTEQUAL(p):
+    '''
+    condicion : condicion GTEQ condicion
+    '''
+    global ContaCuadruplos
+    print(pilas_operandos)
+    operando2 = pilas_operandos.pop()
+    print(pilas_operandos)
+    operando1 = pilas_operandos.pop()
+    print(pilas_operandos)
+    resultado = temporales.pop()
+    pilas_operandos.append(resultado)
+    cuadruplo = ['>=',operando1,operando2,resultado]
+    print("GREATER EQUAL: ",cuadruplo)
+    Lista_cuadruplos.append(cuadruplo)
+    ContaCuadruplos = ContaCuadruplos +1
+
+
+def p_exLOEQUAL(p):
+    '''
+    condicion : condicion LOEQ condicion
+    '''
+    global ContaCuadruplos
+    print(pilas_operandos)
+    operando2 = pilas_operandos.pop()
+    print(pilas_operandos)
+    operando1 = pilas_operandos.pop()
+    print(pilas_operandos)
+    resultado = temporales.pop()
+    pilas_operandos.append(resultado)
+    cuadruplo = ['<=',operando1,operando2,resultado]
+    print("LOWER EQUAL: ",cuadruplo)
+    Lista_cuadruplos.append(cuadruplo)
+    ContaCuadruplos = ContaCuadruplos +1
+
+def p_exGTTHAN(p):
+    '''
+    condicion : condicion GTTHAN condicion
+    '''
+    global ContaCuadruplos
+    print(pilas_operandos)
+    operando2 = pilas_operandos.pop()
+    print(pilas_operandos)
+    operando1 = pilas_operandos.pop()
+    print(pilas_operandos)
+    resultado = temporales.pop()
+    pilas_operandos.append(resultado)
+    cuadruplo = ['>',operando1,operando2,resultado]
+    print("GREATER THAN: ",cuadruplo)
+    Lista_cuadruplos.append(cuadruplo)
+    ContaCuadruplos = ContaCuadruplos +1
+
+def p_exLESSTHAN(p):
+    '''
+    condicion : condicion LESSTHAN condicion
+    '''
+    global ContaCuadruplos
+    print(pilas_operandos)
+    operando2 = pilas_operandos.pop()
+    print(pilas_operandos)
+    operando1 = pilas_operandos.pop()
+    print(pilas_operandos)
+    resultado = temporales.pop()
+    pilas_operandos.append(resultado)
+    cuadruplo = ['<',operando1,operando2,resultado]
+    print("LESS THAN: ",cuadruplo)
+    Lista_cuadruplos.append(cuadruplo)
+    ContaCuadruplos = ContaCuadruplos +1
+
+def p_exNOTEQUAL(p):
+    '''
+    condicion : condicion NOTEQUAL condicion
+    '''
+    global ContaCuadruplos
+    print(pilas_operandos)
+    operando2 = pilas_operandos.pop()
+    print(pilas_operandos)
+    operando1 = pilas_operandos.pop()
+    print(pilas_operandos)
+    resultado = temporales.pop()
+    pilas_operandos.append(resultado)
+    cuadruplo = ['!=',operando1,operando2,resultado]
+    print("NOT EQUAL: ",cuadruplo)
+    Lista_cuadruplos.append(cuadruplo)
+    ContaCuadruplos = ContaCuadruplos +1
+
+def p_exSAME(p):
+    '''
+    condicion : condicion SAME condicion
+    '''
+    global ContaCuadruplos
+    print(pilas_operandos)
+    operando2 = pilas_operandos.pop()
+    print(pilas_operandos)
+    operando1 = pilas_operandos.pop()
+    print(pilas_operandos)
+    resultado = temporales.pop()
+    pilas_operandos.append(resultado)
+    cuadruplo = ['==',operando1,operando2,resultado]
+    print("SAME AS: ",cuadruplo)
+    Lista_cuadruplos.append(cuadruplo)
+    ContaCuadruplos = ContaCuadruplos +1  
+    
+def p_exAND(p):
+    '''
+    condicion : condicion AND condicion
+    '''
+    global ContaCuadruplos
+    print(pilas_operandos)
+    operando2 = pilas_operandos.pop()
+    print(pilas_operandos)
+    operando1 = pilas_operandos.pop()
+    print(pilas_operandos)
+    resultado = temporales.pop()
+    pilas_operandos.append(resultado)
+    cuadruplo = ['&&',operando1,operando2,resultado]
+    print("AND: ",cuadruplo)
+    Lista_cuadruplos.append(cuadruplo)
+    ContaCuadruplos = ContaCuadruplos +1  
+
+def p_exOR(p):
+    '''
+    condicion : condicion OR condicion
+    ''' 
+    global ContaCuadruplos
+    print(pilas_operandos)
+    operando2 = pilas_operandos.pop()
+    print(pilas_operandos)
+    operando1 = pilas_operandos.pop()
+    print(pilas_operandos)
+    resultado = temporales.pop()
+    pilas_operandos.append(resultado)
+    cuadruplo = ['||',operando1,operando2,resultado]
+    print("OR: ",cuadruplo)
+    Lista_cuadruplos.append(cuadruplo)
+    ContaCuadruplos = ContaCuadruplos +1  
+
+def p_DeceiverGROUP(p):
+    '''
+    condicion : PARLEFT condicion PARRIGHT
+    '''
+    p[0] = p[2]
+
+def p_Deceiver(p):
+    '''
+    condicion : Deceiver
+    '''
+    p[0] = p[1]
+
+def p_deceiverParGroup(p): 
+    '''
+    Deceiver : INT_VALUE
+             | ID
+    '''
+    pilas_operandos.append( p[1])
 
 #Un for acepta como valores valores enteros y un ID
 def p_forValues(p):
@@ -483,17 +638,7 @@ def p_printValues(p):
     '''
     printValues : STRING_VALUE
     '''
-def p_condicion(p):
-    '''
-    condicion : condicion GTTHAN condicion
-              | condicion LESSTHAN condicion
-              | condicion GTEQ condicion
-              | condicion LOEQ condicion 
-              | condicion NOTEQUAL condicion
-              | condicion EQUAL condicion
-              | condicion AND condicion
-              | condicion 
-    '''
+
 def p_packuCondicion(p):
     '''
     condicion : packu
