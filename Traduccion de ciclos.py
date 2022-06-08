@@ -420,10 +420,32 @@ def p__for(p):
     '''
     estatuto_for : FOR ID IN forValues COMMA forValues LOOP DOTS body END LOOP ENDING
     '''
+
+#Declaracion del estatuto while y sus cuadruplos
 def p_while(p):
     '''
-    estatuto_while : WHILE condicion DOTS body END WHILE ENDING
+    estatuto_while : inicio_while body END WHILE ENDING
     '''
+    global ContaCuadruplos
+    Lista_cuadruplos[pila_saltos.pop()][3] = ContaCuadruplos
+    cuadruplo = ["GOTO",None,None,None]
+    Lista_cuadruplos.append(cuadruplo)
+    pila_saltos.append(ContaCuadruplos -1)
+    ContaCuadruplos = ContaCuadruplos +1
+
+def p_whileGotof(p):
+    '''
+    inicio_while : WHILE condicion DOTS
+    '''
+    global ContaCuadruplos
+    resultado = pilas_operandos.pop()
+    print (resultado)
+    cuadruplo = ["GOTOF",resultado,None,None]
+    Lista_cuadruplos.append(cuadruplo)
+    pila_saltos.append(ContaCuadruplos)
+    ContaCuadruplos = ContaCuadruplos +1
+
+#Declaracion estatuto print
 def p_print(p): 
     '''
     print : PRINT PARLEFT printValues COMMA ID PARRIGHT ENDING
