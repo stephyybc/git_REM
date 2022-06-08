@@ -61,8 +61,8 @@ reserved = [
     'END', #Palabra que termina funcion
     'THEN',
     'LOOP', #Palabra con la que inicia un ciclo
-    'IN', #Simbolo para el loop
-    'CALL'#para lamada de funciones
+    'CALL', #para lamada de funciones
+    'TO' #cambio para el for
 
 
 ]
@@ -163,10 +163,11 @@ def t_LOOP(t):
     t.type = "LOOP"
     return t
 
-def t_IN(t): 
-    r'IN'
-    t.type = "IN"
+def t_TO(t):
+    r'TO'
+    t.type = "TO"
     return t
+
     
 def t_CALL(t): 
     r'CALL'
@@ -361,7 +362,7 @@ def p_upddateVar(p):
     print(pilas_operandos)
     operando1 = pilas_operandos.pop()
     print(pilas_operandos)
-    cuadruplo = ['=',operando1,None,p[1]]
+    cuadruplo = [':=',operando1,None,p[1]]
     print("EQUAL: ",cuadruplo)
     Lista_cuadruplos.append(cuadruplo)
     ContaCuadruplos = ContaCuadruplos +1
@@ -418,8 +419,51 @@ def p_if_goto(p):
 #for tiene el limite superior y el limite inferior 
 def p__for(p):
     '''
-    estatuto_for : FOR ID IN forValues COMMA forValues LOOP DOTS body END LOOP ENDING
+    estatuto_for : inicio_for body END LOOP ENDING
     '''
+    global ContaCuadruplos
+    operando1 = pilas_operandos.pop()
+    cuadruplo = ['+',operando1,1,temporales.pop()]
+    Lista_cuadruplos.append(cuadruplo)
+    ContaCuadruplos = ContaCuadruplos + 1
+    print(cuadruplo)
+    cuadruplo = ["GOTO",None,None,None]
+    Lista_cuadruplos.append(cuadruplo)
+    pila_saltos.append(ContaCuadruplos)
+    ContaCuadruplos = ContaCuadruplos +1
+    modify_Index = pila_saltos.pop()
+    Lista_cuadruplos[modify_Index][3] = ContaCuadruplos - modify_Index + 2
+    modify_Index = pila_saltos.pop()
+    Lista_cuadruplos[modify_Index][3] = ContaCuadruplos
+
+def p_forGotof(p):
+    '''
+    inicio_for : FOR ID TO forValues LOOP DOTS
+    '''
+    global ContaCuadruplos
+    pilas_operandos.append(p[2])
+    pilas_operandos.append(p[4])
+    operando2 = pilas_operandos.pop()
+    operando1 = pilas_operandos.pop()
+    print("ESTE ES EL OPERANDO 2:",operando2)
+    print("ESTE ES EL OPERANDO 1:",operando1)
+    resultado = temporales.pop()
+    print("ESTE ES EL RESULTADO",resultado)
+    cuadruplo = ['<=',operando1,operando2,resultado]
+    Lista_cuadruplos.append(cuadruplo)
+    pila_saltos.append(ContaCuadruplos)
+    print("CUADRUPLO DEL FOR",cuadruplo)
+    ContaCuadruplos = ContaCuadruplos +1
+    #cuadruplo del gotof
+    cuadruplo = ["GOTOF",resultado,None,None]
+    Lista_cuadruplos.append(cuadruplo)
+    pila_saltos.append(ContaCuadruplos)
+    ContaCuadruplos = ContaCuadruplos +1
+    print(cuadruplo)
+    print(pilas_operandos)
+    pilas_operandos.append(operando1)
+
+    
 
 #Declaracion del estatuto while y sus cuadruplos
 def p_while(p):
@@ -723,6 +767,8 @@ def p_forValues(p):
     forValues : INT_VALUE
               | ID
     '''
+    p[0] = p[1] #necesario sino no despliega nada
+
 def p_printValues(p):
     '''
     printValues : STRING_VALUE
