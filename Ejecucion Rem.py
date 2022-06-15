@@ -267,21 +267,18 @@ def Ejecucion():
     print("A VER TEMPORALES",temporales)
     print("TEMPORALES UTILZADOS",Used_temporales)
 
-    print(Program_counter < len(Lista_cuadruplos))
+    print("ERROR WHILE",len(Lista_cuadruplos))
+    print("ERROR WHILE",Program_counter)
+    print("TERMINAL : ")
     while Program_counter < len(Lista_cuadruplos):
         getCuadInfo()
         #Verifica operandoss
         if operando1 in tabla_simbolos:
             if("value" in tabla_simbolos[operando1]):
                 operando1 = tabla_simbolos[operando1]["value"]
-                print("VALOR DEL OPERANDO 1:", operando1)
 
         elif operando1 in Used_temporales:
-            print("OPERANDO 1 DE ELIF",operando1)
-            print("Pila Resultados :", resultado_temporales)
-
             operando1 = resultado_temporales[int(operando1[1])]
-            print("VALOR DEL OPERANDO 1 FINAL:", operando1)
 
         #Verifica operando 2
         if operando2 in tabla_simbolos:
@@ -289,103 +286,65 @@ def Ejecucion():
                 operando2 = tabla_simbolos[operando2]["value"]
 
         elif operando2 in Used_temporales:
-            print("OPERANDO 2 DE ELIF",operando2)
             operando2 = resultado_temporales[resultado]  
     
         if(resultado in Used_temporales):
-            print("Resultado para index - >",resultado)
             resultado_index = resultado[1]
-            print("Resultado Index - >", resultado_index)
             #Operaciones aritméticas}
             if operacion == ":=": 
-                print("resultadosss",resultado)
-                print("resultados temporales", resultado_temporales)
-                print("operando 1",operando1)
+                # print("resultadosss",resultado)
+                # print("resultados temporales", resultado_temporales)
+                # print("operando 1",operando1)
                 resultado_temporales[resultado] = operando1
                 Program_counter += 1
 
             elif operacion == "+":
-                print("resultadosss",resultado)
-                print("resultados temporales", resultado_temporales)
-                print("operando 1",operando1)
+                # print("resultadosss",resultado)
+                # print("resultados temporales", resultado_temporales)
+                # print("operando 1",operando1)
                 resultado_temporales[int(resultado[1])] = (operando1 + operando2)
                 Program_counter += 1
 
             elif operacion == "-":
-                print("resultadosss",resultado)
-                print("resultados temporales", resultado_temporales)
-                print("operando 1",operando1)
                 resultado_temporales[resultado] = (operando1 - operando2)
                 Program_counter += 1
             
             elif operacion == "*":
-                print("resultadosss",resultado)
-                print("resultados temporales", resultado_temporales)
-                print("operando 1",operando1)
                 resultado_temporales[resultado] = (operando1 * operando2)
                 Program_counter += 1
             
             elif operacion == "/":
-                print("resultadosss",resultado)
-                print("resultados temporales", resultado_temporales)
-                print("operando 1",operando1)
                 resultado_temporales[resultado] = (operando1 / operando2)
                 Program_counter += 1  
             
             #operaciones lógicas
             elif operacion == "==":
-                print("resultadosss",resultado)
-                print("resultados temporales", resultado_temporales)
-                print("operando 1",operando1)
                 resultado_temporales[resultado] = (operando1 == operando2)
                 Program_counter += 1
 
             elif operacion == ">":
-                print("resultadosss",resultado)
-                print("resultados temporales", resultado_temporales)
-                print("operando 1",operando1)
-                print("operando 2",operando2)
                 resultado_index = resultado[1]
-                print("RESULTADO INDEX",resultado_index)
                 resultado_temporales[int(resultado_index)] = (operando1 > operando2)
-                print("R TEMPORALES",resultado_temporales)
-                print("TEMPORALES USANDO",Used_temporales)
                 Program_counter += 1
 
             elif operacion == "<":
-                print("resultadosss",resultado)
-                print("resultados temporales", resultado_temporales)
-                print("operando 1",operando1)
-                print("operando 2",operando2)
                 resultado_index = resultado[1]
                 resultado_temporales[int(resultado_index)] = (operando1 < operando2)
                 Program_counter += 1
 
             elif operacion == ">=":
-                print("resultadosss",resultado)
-                print("resultados temporales", resultado_temporales)
-                print("operando 1",operando1)
                 resultado_temporales[int(resultado_index)] = (operando1 >= operando2)
                 Program_counter += 1
 
             elif operacion == "<=":
-                print("resultadosss",resultado)
-                print("resultados temporales", resultado_temporales)
-                print("operando 1",operando1)
                 resultado_temporales[int(resultado[1])] = (operando1 <= operando2)
                 Program_counter += 1
 
             elif operacion == "&":
-                print("resultadosss",resultado)
-                print("resultados temporales", resultado_temporales)
-                print("operando 1",operando1)
                 resultado_temporales[resultado] = (operando1 and operando2)
                 Program_counter += 1
 
             elif operacion == "|":
-                print("resultadosss",resultado)
-                print("resultados temporales", resultado_temporales)
-                print("operando 1",operando1)
                 resultado_temporales[resultado] = (operando1 or operando2)
                 Program_counter += 1
 
@@ -421,7 +380,7 @@ def Ejecucion():
             elif operacion == "CALL":
                 Program_counter = resultado
             
-            elif operacion == "WRITE":
+            elif operacion == "PRINT":
                 print(operando1)
                 Program_counter = Program_counter+1
             
@@ -432,6 +391,7 @@ def Ejecucion():
 
             
     print("TABLA DE SIMBOLOS FINAL",tabla_simbolos)
+    print("FINAL DE TERMINAL :)")
 #precedence nos ayuda a jerarquizar las operaciones con mayor prioridad
 #entre más abajo mayor prioridad
 precedence = (
@@ -642,9 +602,10 @@ def p__for(p):
     estatuto_for : inicio_for body END LOOP ENDING
     '''
     global ContaCuadruplos
+    print("PILA DE SALTOS",pila_saltos)
     operando1 = pilas_operandos.pop()
     resultado = temporales.pop()
-    cuadruplo = ['+',operando1,1,resultado]
+    cuadruplo = ['+',operando1,1,operando1]
     Lista_cuadruplos.append(cuadruplo)
     Used_temporales.append(resultado) #que se guarden los cuadruplos en la lista de temporales usados
     print("RESULTADO DEL FOR",resultado)
@@ -696,8 +657,9 @@ def p_while(p):
     estatuto_while : inicio_while body END WHILE ENDING
     '''
     global ContaCuadruplos
-    Lista_cuadruplos[pila_saltos.pop()][3] = ContaCuadruplos
-    cuadruplo = ["GOTO",None,None,None]
+    salto = pila_saltos.pop()
+    Lista_cuadruplos[salto][3] = ContaCuadruplos +1
+    cuadruplo = ["GOTO",None,None,salto -1]
     Lista_cuadruplos.append(cuadruplo)
     #Used_temporales.append(resultado) #que se guarden los cuadruplos en la lista de temporales usados
     print("RESULTADO DEL WHILE",resultado)
@@ -720,9 +682,7 @@ def p_whileGotof(p):
 #Declaracion estatuto print
 def p_print(p): 
     '''
-    print : PRINT PARLEFT printValues COMMA ID PARRIGHT ENDING
-          | PRINT PARLEFT printValues PARRIGHT ENDING 
-          | PRINT PARLEFT ID PARRIGHT ENDING
+    print : PRINT PARLEFT printValues PARRIGHT ENDING
     '''
     global ContaCuadruplos
     pilas_operandos.append(p[3])
@@ -730,7 +690,6 @@ def p_print(p):
     print("OPERANDO 1 PRINT",operando1)
     cuadruplo = ['PRINT',operando1,None,None]
     Lista_cuadruplos.append(cuadruplo)
-    print("CUADRUPLO DEL FOR",cuadruplo)
     ContaCuadruplos = ContaCuadruplos +1
     
 def p_read(p):
@@ -1021,7 +980,10 @@ def p_forValues(p):
 def p_printValues(p):
     '''
     printValues : STRING_VALUE
+                | INT_VALUE
+                | ID
     '''
+    p[0] = p[1]
 
 def p_packuCondicion(p):
     '''
