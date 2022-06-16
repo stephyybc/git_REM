@@ -272,6 +272,13 @@ def Ejecucion():
     print("TERMINAL : ")
     while Program_counter < len(Lista_cuadruplos):
         getCuadInfo()
+        #Primero ingresamos el read 
+        if operacion == "READ":
+                info = input()
+                Program_counter = Program_counter+1
+                tabla_simbolos[operando1]["Value"] = int(info)
+                print("Value entered:",info)
+
         #Verifica operandoss
         if operando1 in tabla_simbolos:
             if("value" in tabla_simbolos[operando1]):
@@ -383,9 +390,7 @@ def Ejecucion():
             elif operacion == "PRINT":
                 print(operando1)
                 Program_counter = Program_counter+1
-            
-            elif operacion == "READ":
-                Program_counter = Program_counter+1
+
             else:
                 Program_counter+1
 
@@ -654,31 +659,64 @@ def p_forGotof(p):
 #Declaracion del estatuto while y sus cuadruplos
 def p_while(p):
     '''
-    estatuto_while : inicio_while body END WHILE ENDING
+    estatuto_while : inicio_while auxWhile body final_while
     '''
     global ContaCuadruplos
     salto = pila_saltos.pop()
-    Lista_cuadruplos[salto][3] = ContaCuadruplos +1
-    cuadruplo = ["GOTO",None,None,salto -1]
+    Lista_cuadruplos[salto][3] = ContaCuadruplos
+    # global ContaCuadruplos
+    # salto = pila_saltos.pop()
+    # Lista_cuadruplos[salto][3] = ContaCuadruplos +1
+    # cuadruplo = ["GOTO",None,None,salto -1]
+    # Lista_cuadruplos.append(cuadruplo)
+    # #Used_temporales.append(resultado) #que se guarden los cuadruplos en la lista de temporales usados
+    # print("RESULTADO DEL WHILE",resultado)
+    # pila_saltos.append(ContaCuadruplos -1)
+    # ContaCuadruplos = ContaCuadruplos +1
+def p_final_while(p):
+    '''
+    final_while : END WHILE ENDING
+    '''
+    global ContaCuadruplos
+    f = pila_saltos.pop()
+    retorno = pila_saltos.pop()
+    cuadruplo = ["GOTO",None,None,retorno-1]
     Lista_cuadruplos.append(cuadruplo)
-    #Used_temporales.append(resultado) #que se guarden los cuadruplos en la lista de temporales usados
-    print("RESULTADO DEL WHILE",resultado)
-    pila_saltos.append(ContaCuadruplos -1)
-    ContaCuadruplos = ContaCuadruplos +1
+    Lista_cuadruplos[f][3] = ContaCuadruplos
+    ContaCuadruplos = ContaCuadruplos + 1
 
 def p_whileGotof(p):
     '''
-    inicio_while : WHILE condicion DOTS
+    inicio_while : WHILE condicion_aux_while DOTS
+    '''
+    global ContaCuadruplos
+    pila_saltos.append(ContaCuadruplos)
+    # global ContaCuadruplos
+    # resultado = pilas_operandos.pop()
+    # print (resultado)
+    # cuadruplo = ["GOTOF",resultado,None,None]
+    # print("CUADRUPLO DEL WHILE",cuadruplo)
+    # Lista_cuadruplos.append(cuadruplo)
+    # pila_saltos.append(ContaCuadruplos)
+    # ContaCuadruplos = ContaCuadruplos +1
+
+def p_auxWhile(p):
+    '''
+    auxWhile : 
     '''
     global ContaCuadruplos
     resultado = pilas_operandos.pop()
-    print (resultado)
-    cuadruplo = ["GOTOF",resultado,None,None]
-    print("CUADRUPLO DEL WHILE",cuadruplo)
-    Lista_cuadruplos.append(cuadruplo)
     pila_saltos.append(ContaCuadruplos)
-    ContaCuadruplos = ContaCuadruplos +1
+    cuadruplo = ["GOTOF",resultado,None,None]
+    Lista_cuadruplos.append(cuadruplo)
+    ContaCuadruplos = ContaCuadruplos + 1
 
+def p_condicion_aux_while(p):
+    '''
+    condicion_aux_while : condicion
+    '''
+    global ContaCuadruplos
+    pila_saltos.append(ContaCuadruplos)
 #Declaracion estatuto print
 def p_print(p): 
     '''
@@ -694,8 +732,16 @@ def p_print(p):
     
 def p_read(p):
     '''
-    read : READ DOTS PARLEFT ID PARRIGHT ENDING END
+    read : READ PARLEFT printValues PARRIGHT ENDING 
     '''
+    global ContaCuadruplos
+    pilas_operandos.append(p[3])
+    operando1 = pilas_operandos.pop()
+    print("OPERANDO 1 PRINT",operando1)
+    cuadruplo = ['READ',operando1,None,None]
+    Lista_cuadruplos.append(cuadruplo)
+    ContaCuadruplos = ContaCuadruplos +1
+
 #Definicion 
 def p_type(p):
     '''
